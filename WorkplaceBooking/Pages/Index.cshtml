@@ -1,0 +1,18 @@
+﻿@page
+@model IndexModel
+@{
+    ViewData["Title"] = "Home page";
+}
+
+<div>
+    @if (User.Identity.IsAuthenticated)
+    {
+        <p>Hello, @User.Identity.Name!</p>
+    }
+    else
+    {
+        <form asp-page="/ExternalLogin" asp-page-handler="Google" method="post">
+            <button type="submit" class="btn btn-primary">Login with Google</button>
+        </form>
+    }
+</div>
