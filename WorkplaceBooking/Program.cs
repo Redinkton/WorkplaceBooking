@@ -1,7 +1,10 @@
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.Google;
+using WorkplaceBooking;
 
 var builder = WebApplication.CreateBuilder(args);
+builder.Services.AddSingleton<SeatService>();
+
 
 builder.Services.AddRazorPages();
 
@@ -20,8 +23,8 @@ builder.Services.AddAuthentication(options =>
 var app = builder.Build();
 
 app.UseHttpsRedirection();
+app.UseStaticFiles();
 app.UseRouting();
-app.UseAuthentication();
 app.UseAuthorization();
 app.MapRazorPages();
 

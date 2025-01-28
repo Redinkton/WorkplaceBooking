@@ -1,0 +1,24 @@
+﻿@page
+@model TableModel
+@{
+    ViewData["Title"] = "Table Reservation";
+    Layout = "_Layout";
+}
+
+<link rel="stylesheet" href="~/css/table.css" />
+
+<div class="table-container">
+    <div class="table-layout">
+        <div class="table"></div>
+        <div class="seat seat-1 @(Model.OccupiedSeats.Contains(1) ? "occupied" : "")" data-seat="1"></div>
+        <div class="seat seat-2 @(Model.OccupiedSeats.Contains(2) ? "occupied" : "")" data-seat="2"></div>
+        <div class="seat seat-3 @(Model.OccupiedSeats.Contains(3) ? "occupied" : "")" data-seat="3"></div>
+        <div class="seat seat-4 @(Model.OccupiedSeats.Contains(4) ? "occupied" : "")" data-seat="4"></div>
+        <div class="seat seat-5 @(Model.OccupiedSeats.Contains(5) ? "occupied" : "")" data-seat="5"></div>
+        <div class="seat seat-6 @(Model.OccupiedSeats.Contains(6) ? "occupied" : "")" data-seat="6"></div>
+        <div class="seat seat-7 @(Model.OccupiedSeats.Contains(7) ? "occupied" : "")" data-seat="7"></div>
+    </div>
+</div>
+
+<script src="~/js/table.js"></script>
+@Html.AntiForgeryToken()
