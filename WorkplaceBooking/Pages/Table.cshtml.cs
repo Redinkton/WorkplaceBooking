@@ -1,34 +1,37 @@
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.AspNetCore.Mvc;
 using WorkplaceBooking;
+using Microsoft.AspNetCore.Authorization;
 
+[Authorize]
 public class TableModel : PageModel
 {
     private readonly SeatService _seatService;
+    public IReadOnlyDictionary<int, string> OccupiedSeats => _seatService.OccupiedSeats;
 
     public TableModel(SeatService seatService)
     {
         _seatService = seatService;
     }
 
-    // Список занятых мест для отображения на странице
-    public List<int> OccupiedSeats => _seatService.OccupiedSeats;
-
-    public void OnGet()
-    {
-        // Ничего не делаем, просто отображаем страницу
-    }
-
-    // Обработчик для бронирования места
     public IActionResult OnPostReserve(int seatNumber)
     {
-        if (_seatService.ReserveSeat(seatNumber))
+        if (!_seatService.ReserveSeat(seatNumber, User.Identity.Name))
         {
-            return new JsonResult(new { success = true });
+            TempData["Error"] = "Место уже занято";
         }
-        else
-        {
-            return new JsonResult(new { success = false, message = "Место уже занято!" });
-        }
+
+        return RedirectToPage();
     }
+
+    public IActionResult OnPostFree(int seatNumber)
+    {
+        if (!_seatService.ReserveSeat(seatNumber, User.Identity.Name))
+        {
+            TempData["Error"] = "Вы не можете освободить это место";
+        }
+
+        return RedirectToPage();
+    }
+    public void OnGet() { }
 }

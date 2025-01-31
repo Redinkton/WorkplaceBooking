@@ -2,18 +2,27 @@
 {
     public class SeatService
     {
-        public List<int> OccupiedSeats { get; } = new List<int> { 2, 4, 6 }; // Пример начальных данных
+        private readonly Dictionary<int, string> _occupiedSeats = new();
+        public IReadOnlyDictionary<int, string> OccupiedSeats => _occupiedSeats;
 
-        // Метод для бронирования места
-        public bool ReserveSeat(int seatNumber)
+        public bool ReserveSeat(int seatNumber, string userName)
         {
-            if (OccupiedSeats.Contains(seatNumber))
+            if (_occupiedSeats.ContainsKey(seatNumber))
             {
-                return false; // Место уже занято
+                return false;
             }
 
-            OccupiedSeats.Add(seatNumber);
-            return true; // Место успешно забронировано
+            _occupiedSeats[seatNumber] = userName;
+            return true;
+        }
+
+        public bool FreeSeat(int seatNumber, string userName)
+        {
+            if (_occupiedSeats.TryGetValue(seatNumber, out var owner) && owner == userName)
+            {
+                return true;
+            }
+            return false;
         }
     }
 }
