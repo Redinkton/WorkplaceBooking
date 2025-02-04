@@ -362,3 +362,7 @@ MigrationBackup/
 # Fody - auto-generated XML schema
 FodyWeavers.xsd
 /WorkplaceBooking/appsettings.json
+/WorkplaceBooking/seatbooking.db
+/WorkplaceBooking/seatbooking.db-shm
+/WorkplaceBooking/seatbooking.db-wal
+/WorkplaceBooking/seatbooking.db-shm
