@@ -1,5 +1,4 @@
-﻿// Инициализация мест
-const seats = document.querySelectorAll('.seat');
+﻿const seats = document.querySelectorAll('.seat');
 
 // Обработка клика по месту
 seats.forEach(seat => {

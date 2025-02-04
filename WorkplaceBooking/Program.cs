@@ -1,15 +1,17 @@
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.Google;
 using Microsoft.EntityFrameworkCore;
-using WorkplaceBooking;
 using WorkplaceBooking.Data;
+using WorkplaceBooking.Repositories;
+using WorkplaceBooking.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseSqlite("Data Source=seatbooking.db"));
 
-builder.Services.AddSingleton<SeatService>();
+builder.Services.AddScoped<SeatService>();
+builder.Services.AddScoped<ISeatRepository,SeatRepository>();
 
 
 builder.Services.AddRazorPages();

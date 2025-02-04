@@ -4,15 +4,25 @@
     ViewData["Title"] = "Home page";
 }
 
-<div>
-    @if (User.Identity.IsAuthenticated)
-    {
-        <p>Hello, @User.Identity.Name!</p>
-    }
-    else
-    {
-        <form asp-page="/ExternalLogin" asp-page-handler="Google" method="post">
-            <button type="submit" class="btn btn-primary">Login with Google</button>
-        </form>
-    }
+<div class="container">
+    <div class="d-flex justify-content-between align-items-center">
+        <div>
+            @if (User.Identity.IsAuthenticated)
+            {
+                <p>Hello, @User.Identity.Name!</p>
+            }
+        </div>
+        <div>
+            @if (User.Identity.IsAuthenticated)
+            {
+                <a asp-page="/Logout" class="btn btn-outline-danger">Logout</a>
+            }
+            else
+            {
+                <form asp-page="/ExternalLogin" asp-page-handler="Google" method="post">
+                    <button type="submit" class="btn btn-primary">Login with Google</button>
+                </form>
+            }
+        </div>
+    </div>
 </div>
