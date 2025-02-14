@@ -15,24 +15,22 @@ public class TableModel : PageModel
         _seatService = seatService;
     }
 
-    // Метод для бронирования места
     public async Task<IActionResult> OnPostReserve(int seatNumber)
     {
         var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
         if (userId == null)
         {
-            TempData["Error"] = "Ошибка: Пользователь не найден";
+            TempData["Error"] = "РћС€РёР±РєР°: РџРѕР»СЊР·РѕРІР°С‚РµР»СЊ РЅРµ РЅР°Р№РґРµРЅ";
             return RedirectToPage();
         }
 
         if (!await _seatService.ReserveSeatAsync(seatNumber, userId))
         {
-            TempData["Error"] = "Место уже занято";
+            TempData["Error"] = "ГЊГҐГ±ГІГ® ГіГ¦ГҐ Г§Г Г­ГїГІГ®";
         }
         return RedirectToPage();
     }
 
-    // Метод для освобождения места
     public async Task<IActionResult> OnPostFree(int seatNumber)
     {
         var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
@@ -43,12 +41,11 @@ public class TableModel : PageModel
 
         if (!await _seatService.FreeSeatAsync(seatNumber, userId))
         {
-            TempData["Error"] = "Вы не можете освободить это место";
+            TempData["Error"] = "Р’С‹ РЅРµ РјРѕР¶РµС‚Рµ РѕСЃРІРѕР±РѕРґРёС‚СЊ СЌС‚Рѕ РјРµСЃС‚Рѕ";
         }
         return RedirectToPage();
     }
 
-    // Метод для загрузки текущих занятых мест
     public async Task OnGet()
     {
         OccupiedSeats = await _seatService.GetOccupiedSeatsAsync();
