@@ -10,13 +10,13 @@
 <div class="table-container">
     <div class="table-layout">
         <div class="table"></div>
-        @foreach (var seat in Enumerable.Range(1, 7))
+        @foreach (var seat in Enumerable.Range(1, 7)) // Перебор мест (например, 7 мест)
         {
             <div class="seat seat-@seat @(Model.OccupiedSeats.ContainsKey(seat) ? "occupied" : "")" data-seat="@seat">
-                @if (Model.OccupiedSeats.TryGetValue(seat, out var owner))
+                @if (Model.OccupiedSeats.TryGetValue(seat, out var owner)) // Если место занято
                 {
                     <span>@owner</span>
-                    @if (User.Identity.IsAuthenticated && User.Identity.Name == owner)
+                    @if (User.Identity.IsAuthenticated && User.Identity.Name == owner) // Если это место пользователя
                     {
                         <form method="post" asp-page-handler="Free">
                             <input type="hidden" name="seatNumber" value="@seat" />
@@ -24,7 +24,7 @@
                         </form>
                     }
                 }
-                else if (User.Identity.IsAuthenticated)
+                else if (User.Identity.IsAuthenticated) // Если место свободно и пользователь авторизован
                 {
                     <form method="post" asp-page-handler="Reserve">
                         <input type="hidden" name="seatNumber" value="@seat" />

@@ -7,42 +7,46 @@ namespace WorkplaceBooking.Repositories
     public class SeatRepository : ISeatRepository
     {
         private readonly AppDbContext _appDbContext;
+        private readonly IUserRepository _userRepository;
 
-        public SeatRepository(AppDbContext appDbContext)
+        public SeatRepository(AppDbContext appDbContext, IUserRepository userRepository)
         {
             _appDbContext = appDbContext;
+            _userRepository = userRepository;
         }
-        public async Task AddBookingAsync(SeatBooking seatBooking)
+        public async Task AddBookingAsync(string userId, int seatNumber)
         {
-            await _appDbContext.SeatBookings.AddAsync(seatBooking);
+            var userProfile = await _userRepository.GetUserProfileById(userId) ?? throw new InvalidOperationException("Пользователь не найден");
+            userProfile.SeatNumber = seatNumber;
             await _appDbContext.SaveChangesAsync();
         }
 
-        public async Task RemoveBookingAsync(SeatBooking seatBooking)
+        public async Task RemoveBookingAsync(string userId, int seatNumber)
         {
-            _appDbContext.SeatBookings.Remove(seatBooking);
+            var userProfile = await _userRepository.GetUserProfileById(userId) ?? throw new InvalidOperationException("Пользователь не найден");
+            userProfile.SeatNumber = null;
             await _appDbContext.SaveChangesAsync();
         }
 
-        public async Task<SeatBooking?> GetBookingAsync(int seatNumber, string userName)
+        public async Task<UserProfile?> GetBookingAsync(int seatNumber, string userId)
         {
-            return await _appDbContext.SeatBookings
-                 .FirstOrDefaultAsync(s => s.SeatNumber == seatNumber && s.UserName == userName);
+            return await _appDbContext.UserProfiles
+                 .FirstOrDefaultAsync(u => u.SeatNumber == seatNumber && u.Id == userId);
         }
 
         public async Task<bool> IsSeatOccupiedAsync(int seatNumber)
         {
-            return await _appDbContext.SeatBookings.AnyAsync(s => s.SeatNumber == seatNumber);
+            return await _appDbContext.UserProfiles.AnyAsync(u => u.SeatNumber == seatNumber);
         }
 
         public async Task<bool> IsUserAlreadyBookedAsync(string userName)
         {
-            return await _appDbContext.SeatBookings.AnyAsync(s => s.UserName == userName);
+            return await _appDbContext.UserProfiles.AnyAsync(u => u.Name == userName);
         }
 
-        public async Task<List<SeatBooking>> GetAllBookingsAsync()
+        public async Task<List<UserProfile>> GetAllBookingsAsync()
         {
-            return await _appDbContext.SeatBookings.ToListAsync();
+            return await _appDbContext.UserProfiles.ToListAsync();
         }
     }
 }

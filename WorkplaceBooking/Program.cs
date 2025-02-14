@@ -11,7 +11,9 @@ builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseSqlite("Data Source=seatbooking.db"));
 
 builder.Services.AddScoped<SeatService>();
-builder.Services.AddScoped<ISeatRepository,SeatRepository>();
+builder.Services.AddScoped<UserService>();
+builder.Services.AddScoped<ISeatRepository, SeatRepository>();
+builder.Services.AddScoped<IUserRepository, UserRepository>();
 
 
 builder.Services.AddRazorPages();
@@ -26,6 +28,11 @@ builder.Services.AddAuthentication(options =>
 {
     options.ClientId = builder.Configuration["GoogleKeys:ClientId"];
     options.ClientSecret = builder.Configuration["GoogleKeys:ClientSecret"];
+    options.Events.OnCreatingTicket = async context =>
+    {
+        var userService = context.HttpContext.RequestServices.GetRequiredService<UserService>();
+        await userService.RegisterUserAsync(context.Principal);
+    };
 });
 
 var app = builder.Build();

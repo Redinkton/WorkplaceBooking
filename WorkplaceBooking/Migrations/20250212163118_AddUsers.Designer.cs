@@ -10,8 +10,8 @@ using WorkplaceBooking.Data;
 namespace WorkplaceBooking.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20250131155339_InitialCreate")]
-    partial class InitialCreate
+    [Migration("20250212163118_AddUsers")]
+    partial class AddUsers
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -31,7 +31,31 @@ namespace WorkplaceBooking.Migrations
 
                     b.HasKey("SeatNumber");
 
+                    b.HasIndex("SeatNumber")
+                        .IsUnique();
+
                     b.ToTable("SeatBookings");
+                });
+
+            modelBuilder.Entity("WorkplaceBooking.Models.UserProfile", b =>
+                {
+                    b.Property<string>("Id")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Email")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<bool>("IsAdmin")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("UserProfiles");
                 });
 #pragma warning restore 612, 618
         }

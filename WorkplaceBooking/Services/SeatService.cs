@@ -1,5 +1,4 @@
-﻿using Microsoft.EntityFrameworkCore;
-using WorkplaceBooking.Data;
+﻿using System.Collections.ObjectModel;
 using WorkplaceBooking.Models;
 using WorkplaceBooking.Repositories;
 
@@ -13,40 +12,45 @@ namespace WorkplaceBooking.Services
             _seatRepository = seatRepository;
         }
 
-        public async Task<bool> ReserveSeatAsync(int seatNumber, string userName)
+        public async Task<bool> ReserveSeatAsync(int seatNumber, string userId)
         {
             if (await _seatRepository.IsSeatOccupiedAsync(seatNumber))
             {
                 return false;
             }
 
-            if (await _seatRepository.IsUserAlreadyBookedAsync(userName))
+            if (await _seatRepository.IsUserAlreadyBookedAsync(userId))
             {
                 return false;
             }
 
-            var booking = new SeatBooking { SeatNumber = seatNumber, UserName = userName };
-            await _seatRepository.AddBookingAsync(booking);
+            await _seatRepository.AddBookingAsync(userId, seatNumber);
             return true;
         }
 
-        public async Task<bool> FreeSeatAsync(int seatNumber, string userName)
+        public async Task<bool> FreeSeatAsync(int seatNumber, string userId)
         {
 
-            var booking = await _seatRepository.GetBookingAsync(seatNumber, userName);
+            var booking = await _seatRepository.GetBookingAsync(seatNumber, userId);
             if (booking == null)
             {
                 return false;
             }
 
-            await _seatRepository.RemoveBookingAsync(booking);
+            await _seatRepository.RemoveBookingAsync(userId, seatNumber);
             return true;
         }
 
         public async Task<IReadOnlyDictionary<int, string>> GetOccupiedSeatsAsync()
         {
             var bookings = await _seatRepository.GetAllBookingsAsync();
-            return bookings.ToDictionary(b => b.SeatNumber, b => b.UserName);
+
+            var occupiedSeats = bookings
+                .Where(b => b.SeatNumber.HasValue)
+                .ToDictionary(b => b.SeatNumber.Value, b => b.Name); 
+
+            return new ReadOnlyDictionary<int, string>(occupiedSeats);
         }
+
     }
 }

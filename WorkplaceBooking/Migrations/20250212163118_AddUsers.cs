@@ -5,7 +5,7 @@
 namespace WorkplaceBooking.Migrations
 {
     /// <inheritdoc />
-    public partial class InitialCreate : Migration
+    public partial class AddUsers : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -22,6 +22,26 @@ namespace WorkplaceBooking.Migrations
                 {
                     table.PrimaryKey("PK_SeatBookings", x => x.SeatNumber);
                 });
+
+            migrationBuilder.CreateTable(
+                name: "UserProfiles",
+                columns: table => new
+                {
+                    Id = table.Column<string>(type: "TEXT", nullable: false),
+                    Email = table.Column<string>(type: "TEXT", nullable: false),
+                    Name = table.Column<string>(type: "TEXT", nullable: false),
+                    IsAdmin = table.Column<bool>(type: "INTEGER", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_UserProfiles", x => x.Id);
+                });
+
+            migrationBuilder.CreateIndex(
+                name: "IX_SeatBookings_SeatNumber",
+                table: "SeatBookings",
+                column: "SeatNumber",
+                unique: true);
         }
 
         /// <inheritdoc />
@@ -29,6 +49,9 @@ namespace WorkplaceBooking.Migrations
         {
             migrationBuilder.DropTable(
                 name: "SeatBookings");
+
+            migrationBuilder.DropTable(
+                name: "UserProfiles");
         }
     }
 }

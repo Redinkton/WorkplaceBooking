@@ -2,7 +2,7 @@ using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authorization;
 using WorkplaceBooking.Services;
-
+using System.Security.Claims;
 
 [Authorize]
 public class TableModel : PageModel
@@ -15,24 +15,40 @@ public class TableModel : PageModel
         _seatService = seatService;
     }
 
+    // Метод для бронирования места
     public async Task<IActionResult> OnPostReserve(int seatNumber)
     {
-        if (!await _seatService.ReserveSeatAsync(seatNumber, User.Identity.Name))
+        var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+        if (userId == null)
+        {
+            TempData["Error"] = "Ошибка: Пользователь не найден";
+            return RedirectToPage();
+        }
+
+        if (!await _seatService.ReserveSeatAsync(seatNumber, userId))
         {
             TempData["Error"] = "Место уже занято";
         }
         return RedirectToPage();
     }
 
+    // Метод для освобождения места
     public async Task<IActionResult> OnPostFree(int seatNumber)
     {
-        if (!await _seatService.FreeSeatAsync(seatNumber, User.Identity.Name))
+        var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+        if (userId == null)
+        {
+            return Unauthorized();
+        }
+
+        if (!await _seatService.FreeSeatAsync(seatNumber, userId))
         {
             TempData["Error"] = "Вы не можете освободить это место";
         }
         return RedirectToPage();
     }
 
+    // Метод для загрузки текущих занятых мест
     public async Task OnGet()
     {
         OccupiedSeats = await _seatService.GetOccupiedSeatsAsync();
