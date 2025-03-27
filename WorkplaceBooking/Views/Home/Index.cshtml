@@ -1,6 +1,4 @@
-﻿@page
-@model IndexModel
-@{
+﻿@{
     ViewData["Title"] = "Home page";
 }
 
@@ -15,11 +13,13 @@
         <div>
             @if (User.Identity.IsAuthenticated)
             {
-                <a asp-page="/Logout" class="btn btn-outline-danger">Logout</a>
+                <form asp-controller="Auth" asp-action="Logout" method="post">
+                    <button type="submit" class="btn btn-outline-danger">Logout</button>
+                </form>
             }
             else
             {
-                <form asp-page="/ExternalLogin" asp-page-handler="Google" method="post">
+                <form asp-controller="Auth" asp-action="GoogleSignIn" method="post">
                     <button type="submit" class="btn btn-primary">Login with Google</button>
                 </form>
             }

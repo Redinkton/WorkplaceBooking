@@ -1,0 +1,46 @@
+﻿@model IReadOnlyDictionary<int, string>
+@{
+    ViewData["Title"] = "Table Reservation";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<link rel="stylesheet" href="~/css/table.css" />
+
+<div class="table-container">
+    <div class="table-layout">
+        <div class="table"></div>
+        @if (TempData["Error"] != null)
+        {
+            <div class="alert alert-danger">@TempData["Error"]</div>
+        }
+
+        @foreach (var seat in Enumerable.Range(1, 7))
+        {
+            var isOccupied = Model != null && Model.ContainsKey(seat);
+            <div class="seat seat-@seat @(isOccupied ? "occupied" : "")" data-seat="@seat">
+                @if (isOccupied && Model.TryGetValue(seat, out var owner))
+                {
+                    <span>@owner</span>
+                    @if (User.Identity.IsAuthenticated && User.Identity.Name == owner)
+                    {
+                        <form method="post" asp-controller="Seats" asp-action="FreeSeat">
+                            <input type="hidden" name="seatNumber" value="@seat" />
+                            @Html.AntiForgeryToken()
+                            <button type="submit" class="free-seat">Освободить</button>
+                        </form>
+                    }
+                }
+                else if (User.Identity.IsAuthenticated)
+                {
+                    <form method="post" asp-controller="Seats" asp-action="ReserveSeat">
+                        <input type="hidden" name="seatNumber" value="@seat" />
+                        @Html.AntiForgeryToken()
+                        <button type="submit" class="reserve-seat">Занять</button>
+                    </form>
+                }
+            </div>
+        }
+    </div>
+</div>
+
+<script src="~/js/table.js"></script>

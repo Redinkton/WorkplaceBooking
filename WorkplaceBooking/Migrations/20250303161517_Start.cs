@@ -5,22 +5,22 @@
 namespace WorkplaceBooking.Migrations
 {
     /// <inheritdoc />
-    public partial class AddUsers : Migration
+    public partial class Start : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.CreateTable(
-                name: "SeatBookings",
+                name: "Seats",
                 columns: table => new
                 {
-                    SeatNumber = table.Column<int>(type: "INTEGER", nullable: false)
+                    Id = table.Column<int>(type: "INTEGER", nullable: false)
                         .Annotation("Sqlite:Autoincrement", true),
-                    UserName = table.Column<string>(type: "TEXT", nullable: false)
+                    Number = table.Column<int>(type: "INTEGER", nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_SeatBookings", x => x.SeatNumber);
+                    table.PrimaryKey("PK_Seats", x => x.Id);
                 });
 
             migrationBuilder.CreateTable(
@@ -30,17 +30,23 @@ namespace WorkplaceBooking.Migrations
                     Id = table.Column<string>(type: "TEXT", nullable: false),
                     Email = table.Column<string>(type: "TEXT", nullable: false),
                     Name = table.Column<string>(type: "TEXT", nullable: false),
-                    IsAdmin = table.Column<bool>(type: "INTEGER", nullable: false)
+                    IsAdmin = table.Column<bool>(type: "INTEGER", nullable: false),
+                    SeatId = table.Column<int>(type: "INTEGER", nullable: true)
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_UserProfiles", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_UserProfiles_Seats_SeatId",
+                        column: x => x.SeatId,
+                        principalTable: "Seats",
+                        principalColumn: "Id");
                 });
 
             migrationBuilder.CreateIndex(
-                name: "IX_SeatBookings_SeatNumber",
-                table: "SeatBookings",
-                column: "SeatNumber",
+                name: "IX_UserProfiles_SeatId",
+                table: "UserProfiles",
+                column: "SeatId",
                 unique: true);
         }
 
@@ -48,10 +54,10 @@ namespace WorkplaceBooking.Migrations
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropTable(
-                name: "SeatBookings");
+                name: "UserProfiles");
 
             migrationBuilder.DropTable(
-                name: "UserProfiles");
+                name: "Seats");
         }
     }
 }

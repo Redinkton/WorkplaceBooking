@@ -12,6 +12,8 @@ namespace WorkplaceBooking.Models
         public string Name { get; set; }
         [Required]
         public bool IsAdmin { get; set; }
-        public int? SeatNumber { get; set; }
+
+        public int? SeatId { get; set; }
+        public Seat? Seat { get; set; }
     }
 }

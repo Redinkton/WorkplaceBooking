@@ -4,17 +4,13 @@ using WorkplaceBooking.Models;
 
 namespace WorkplaceBooking.Repositories
 {
-    public class UserRepository : IUserRepository
+    public class UserRepository(AppDbContext appDbContext) : IUserRepository
     {
-        private readonly AppDbContext _appDbContext;
+        private readonly AppDbContext _appDbContext = appDbContext;
 
-        public UserRepository(AppDbContext appDbContext)
-        {
-            _appDbContext = appDbContext;
-        }
         public async Task RegisterUserIfNotExistsAsync(string email, string name, string userId)
         {
-            var existingUser = await _appDbContext.UserProfiles.FirstOrDefaultAsync(u => u.Id == userId);
+            var existingUser = await _appDbContext.UserProfiles.FindAsync(userId);
             if (existingUser == null)
             {
                 var newUser = new UserProfile
@@ -32,14 +28,13 @@ namespace WorkplaceBooking.Repositories
 
         public async Task<bool> IsAdmin(string userId)
         {
-            var userProfile = await _appDbContext.UserProfiles.FirstOrDefaultAsync(u => u.Id == userId);
+            var userProfile = await _appDbContext.UserProfiles.FindAsync(userId);
             if (userProfile == null)
             {
                 return false;
             }
             return userProfile.IsAdmin;
         }
-
 
         public async Task<UserProfile> GetUserProfileById(string userId)
         {
@@ -53,12 +48,21 @@ namespace WorkplaceBooking.Repositories
 
         public async Task<UserProfile> GetUserProfileByEmail(string email)
         {
-            var userProfile = await _appDbContext.UserProfiles.FirstOrDefaultAsync(u => u.Email == email);
+            var userProfile = await _appDbContext.UserProfiles
+                .Include(u => u.Seat)
+                .FirstOrDefaultAsync(u => u.Email == email);
             if (userProfile == null)
             {
                 throw new InvalidOperationException("Пользователь не найден");
             }
             return userProfile;
+        }
+
+        public async Task<List<UserProfile>> GetUsers()
+        {
+            return await _appDbContext.UserProfiles
+                .Include(u => u.Seat)
+                .ToListAsync();
         }
     }
 }

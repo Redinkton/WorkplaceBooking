@@ -10,8 +10,8 @@ using WorkplaceBooking.Data;
 namespace WorkplaceBooking.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20250212163118_AddUsers")]
-    partial class AddUsers
+    [Migration("20250303161517_Start")]
+    partial class Start
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -19,22 +19,18 @@ namespace WorkplaceBooking.Migrations
 #pragma warning disable 612, 618
             modelBuilder.HasAnnotation("ProductVersion", "9.0.1");
 
-            modelBuilder.Entity("WorkplaceBooking.Models.SeatBooking", b =>
+            modelBuilder.Entity("WorkplaceBooking.Models.Seat", b =>
                 {
-                    b.Property<int>("SeatNumber")
+                    b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("INTEGER");
 
-                    b.Property<string>("UserName")
-                        .IsRequired()
-                        .HasColumnType("TEXT");
+                    b.Property<int>("Number")
+                        .HasColumnType("INTEGER");
 
-                    b.HasKey("SeatNumber");
+                    b.HasKey("Id");
 
-                    b.HasIndex("SeatNumber")
-                        .IsUnique();
-
-                    b.ToTable("SeatBookings");
+                    b.ToTable("Seats");
                 });
 
             modelBuilder.Entity("WorkplaceBooking.Models.UserProfile", b =>
@@ -53,9 +49,29 @@ namespace WorkplaceBooking.Migrations
                         .IsRequired()
                         .HasColumnType("TEXT");
 
+                    b.Property<int?>("SeatId")
+                        .HasColumnType("INTEGER");
+
                     b.HasKey("Id");
 
+                    b.HasIndex("SeatId")
+                        .IsUnique();
+
                     b.ToTable("UserProfiles");
+                });
+
+            modelBuilder.Entity("WorkplaceBooking.Models.UserProfile", b =>
+                {
+                    b.HasOne("WorkplaceBooking.Models.Seat", "Seat")
+                        .WithOne("UserProfile")
+                        .HasForeignKey("WorkplaceBooking.Models.UserProfile", "SeatId");
+
+                    b.Navigation("Seat");
+                });
+
+            modelBuilder.Entity("WorkplaceBooking.Models.Seat", b =>
+                {
+                    b.Navigation("UserProfile");
                 });
 #pragma warning restore 612, 618
         }

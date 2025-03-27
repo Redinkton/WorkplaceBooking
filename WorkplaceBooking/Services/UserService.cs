@@ -1,15 +1,12 @@
 ﻿using System.Security.Claims;
+using WorkplaceBooking.Models;
 using WorkplaceBooking.Repositories;
 
 namespace WorkplaceBooking.Services
 {
-    public class UserService
+    public class UserService(IUserRepository userRepository) : IUserService
     {
-        private readonly IUserRepository _userRepository;
-        public UserService(IUserRepository userRepository)
-        {
-            _userRepository = userRepository;
-        }
+        private readonly IUserRepository _userRepository = userRepository;
 
         public async Task RegisterUserAsync(ClaimsPrincipal user)
         {
@@ -20,6 +17,16 @@ namespace WorkplaceBooking.Services
             {
                 await _userRepository.RegisterUserIfNotExistsAsync(email, name, id);
             }
+        }
+
+        public async Task<bool> IsAdminAsync(string userId)
+        {
+            return await _userRepository.IsAdmin(userId);
+        }
+
+        public async Task<IEnumerable<UserProfile>> GetUsersAsync()
+        {
+            return await _userRepository.GetUsers();
         }
     }
 }

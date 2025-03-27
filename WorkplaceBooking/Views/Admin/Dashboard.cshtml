@@ -1,0 +1,170 @@
+﻿@model dynamic
+
+@{
+	Layout = "_Layout";
+	ViewData["Title"] = "Admin Panel | Workplace Booking";
+
+
+	string GetSeatLabel(int count)
+	{
+		int mod100 = count % 100;
+		int mod10 = count % 10;
+		if (mod100 >= 11 && mod100 <= 14)
+		{
+			return "мест";
+		}
+		switch (mod10)
+		{
+			case 1:
+				return "место";
+			case 2:
+			case 3:
+			case 4:
+				return "места";
+			default:
+				return "мест";
+		}
+	}
+}
+
+<main class="container">
+	@Html.AntiForgeryToken()
+
+	@if (TempData["ErrorMessage"] != null)
+	{
+		<div class="alert alert-danger">@TempData["ErrorMessage"]</div>
+	}
+	@if (TempData["SuccessMessage"] != null)
+	{
+		<div class="alert alert-success">@TempData["SuccessMessage"]</div>
+	}
+
+	<h1>Обзор системы</h1>
+
+	<!-- Количество свободных и занятых мест -->
+	<div class="stats-grid">
+		<div class="stat-card">
+			<div class="stat-header">
+				<h3>Свободные</h3>
+			</div>
+			<div class="stat-value">
+				@Model.FreeSeats.Count мест
+			</div>
+		</div>
+
+
+		<div class="stat-card">
+			<div class="stat-header">
+				<h3>Занятые</h3>
+			</div>
+			<div class="stat-value">
+				@Model.OccupiedSeats.Count мест
+			</div>
+		</div>
+	</div>
+
+	<!-- Поиск -->
+	<div class="search-container">
+		<input type="text" class="search-bar" placeholder="Поиск по email...">
+	</div>
+
+	<!-- Таблица бронирований -->
+	<div class="booking-table">
+		<table>
+			<thead>
+				<tr>
+					<th>Пользователь</th>
+					<th>Место</th>
+					<th>Дата</th>
+					<th>Действия</th>
+				</tr>
+			</thead>
+			<tbody id="bookings-table">
+				@foreach (var user in Model.Users)
+				{
+					<tr>
+						<td>@user.Name</td>
+						<td>@(user.Seat != null ? user.Seat.Number : "Не занято")</td>
+						<td>Дата не указана</td>
+						<td>
+							<!-- Кнопка "Забронировать" -->
+							<button class="btn btn-primary reserve-seat-btn"
+									data-email="@user.Email">
+								Забронировать
+							</button>
+
+							<!-- Кнопка "Отменить" (если есть бронь) -->
+							@if (user.Seat != null)
+							{
+								<form asp-controller="Admin" asp-action="CancelSeatForUser" method="post">
+									@Html.AntiForgeryToken()
+									<input type="hidden" name="userEmail" value="@user.Email" />
+									<button type="submit" class="btn btn-danger">Отменить</button>
+								</form>
+							}
+						</td>
+					</tr>
+				}
+			</tbody>
+		</table>
+	</div>
+</main>
+
+<script>
+	// Сериализуем список всех номеров мест из модели в JavaScript-массив
+	const allSeatNumbers = @Json.Serialize(Model.AllSeatNumbers);
+
+	document.addEventListener("DOMContentLoaded", function () {
+		const csrfToken = document.querySelector('input[name="__RequestVerificationToken"]').value;
+
+		document.querySelectorAll(".reserve-seat-btn").forEach(button => {
+			button.addEventListener("click", function (e) {
+				e.preventDefault();
+				const userEmail = this.getAttribute("data-email");
+
+				let seatNumber;
+				do {
+					seatNumber = prompt("Введите номер места (только цифры):");
+					if (seatNumber === null) return; // Если нажали "Отмена", выходим
+				} while (!/^\d+$/.test(seatNumber)); // Проверяем, что введены только цифры
+
+				// Преобразуем введенное значение в число
+				const seatNum = parseInt(seatNumber, 10);
+
+				// Проверяем, существует ли номер места
+				if (!allSeatNumbers.includes(seatNum)) {
+					alert("Ошибка: место с таким номером не существует.");
+					return; // Прерываем выполнение, не отправляем форму
+				}
+
+				// Если место существует, создаем и отправляем форму
+				const form = document.createElement("form");
+				form.method = "POST";
+				form.action = "/admin/reserve";
+				form.innerHTML = `
+					<input type="hidden" name="userEmail" value="${userEmail}">
+					<input type="hidden" name="seatNumber" value="${seatNumber}">
+					<input type="hidden" name="__RequestVerificationToken" value="${csrfToken}">
+				`;
+				document.body.appendChild(form);
+				form.submit();
+			});
+		});
+	});
+
+	// Существующий код поиска остается без изменений
+	document.addEventListener('DOMContentLoaded', () => {
+		const searchBar = document.querySelector('.search-bar');
+		const tableRows = document.querySelectorAll('#bookings-table tr');
+
+		searchBar.addEventListener('input', () => {
+			const searchTerm = searchBar.value.trim().toLowerCase();
+
+			tableRows.forEach(row => {
+				const userEmail = row.querySelector('.reserve-seat-btn').dataset.email.toLowerCase();
+				const isVisible = userEmail.includes(searchTerm);
+				row.style.display = isVisible ? '' : 'none';
+			});
+		});
+	});
+</script>

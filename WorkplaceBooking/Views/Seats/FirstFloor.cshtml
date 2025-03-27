@@ -1,0 +1,77 @@
+﻿@model IReadOnlyDictionary<int, string>
+@{
+    ViewData["Title"] = "Бронирование рабочих мест";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<link rel="stylesheet" href="~/css/first-floor.css" />
+
+<div class="floor-container">
+    <h2>Первый этаж</h2>
+
+    @for (int row = 1; row <= 3; row++)
+    {
+        <div class="row">
+            @foreach (var table in new[] { 0, 1 })
+            {
+                int tableNumber = (row - 1) * 2 + table + 1;
+                <div class="table-group">
+                    <div class="table"></div>
+                    <div class="seats">
+                        @foreach (var seat in Enumerable.Range(0, 4))
+                        {
+                            int seatNumber = (row - 1) * 8 + table * 4 + seat + 8;
+                            // Получаем имя владельца, если место занято
+                            string owner = null;
+                            if (Model != null && Model.TryGetValue(seatNumber, out var seatOwner))
+                            {
+                                owner = seatOwner;
+                            }
+                            bool isOccupied = owner != null;
+                            <div class="seat-wrapper"
+                                 style="top: @(seat < 2 ? "20%" : "80%");
+                                        left: @(seat % 2 == 0 ? "25%" : "75%")">
+
+                                <div class="seat-controls">
+                                    @if (isOccupied && User.Identity.IsAuthenticated && User.Identity.Name == owner)
+                                    {
+                                        <form method="post" asp-controller="Seats" asp-action="FreeSeat">
+                                            <input type="hidden" name="seatNumber" value="@seatNumber" />
+                                            @Html.AntiForgeryToken()
+                                            <button type="submit" class="free-seat">Освободить</button>
+                                        </form>
+                                    }
+                                    else if (User.Identity.IsAuthenticated)
+                                    {
+                                        <form method="post" asp-controller="Seats" asp-action="ReserveSeat">
+                                            <input type="hidden" name="seatNumber" value="@seatNumber" />
+                                            @Html.AntiForgeryToken()
+                                            <button type="submit" class="reserve-seat">Занять</button>
+                                        </form>
+                                    }
+                                </div>
+
+                                <div class="seat @(isOccupied ? "occupied" : "")">
+                                    @if (isOccupied)
+                                    {
+                                        <span></span>
+                                    }
+                                </div>
+
+                                @* Если место занято, выводим имя владельца *@
+                                @if (isOccupied)
+                                {
+                                    <div class="seat-owner">
+                                        @owner
+                                    </div>
+                                }
+                            </div>
+                        }
+                    </div>
+                </div>
+            }
+        </div>
+    }
+</div>
+
+<script src="~/js/table.js"></script>
