@@ -41,7 +41,7 @@
                                             <button type="submit" class="free-seat">Освободить</button>
                                         </form>
                                     }
-                                    else if (User.Identity.IsAuthenticated)
+                                    else if (!isOccupied && User.Identity.IsAuthenticated)
                                     {
                                         <form method="post" asp-controller="Seats" asp-action="ReserveSeat">
                                             <input type="hidden" name="seatNumber" value="@seatNumber" />
@@ -50,6 +50,7 @@
                                         </form>
                                     }
                                 </div>
+
 
                                 <div class="seat @(isOccupied ? "occupied" : "")">
                                     @if (isOccupied)
